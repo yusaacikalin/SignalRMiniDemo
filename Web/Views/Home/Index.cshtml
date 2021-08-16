@@ -1,0 +1,60 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<div class="container">
+    <div class="row">&nbsp;</div>
+    <div class="row">
+        <div class="col-2">Kullanıcı Adı</div>
+        <div class="col-4"><input type="text" id="kullaniciAdiInput" /></div>
+    </div>
+    <div class="row">
+        <div class="col-2">Mesaj</div>
+        <div class="col-4"><input type="text" id="mesajInput" /></div>
+    </div>
+    <div class="row">&nbsp;</div>
+    <div class="row">
+        <div class="col-6">
+            <input type="button" onclick="mesajGonder()" value="Mesajı Gonder" />
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <hr />
+    </div>
+</div>
+<div class="row">
+    <div class="col-6">
+        <ul id="mesajListesi"></ul>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        //Bağlantı Ayarları
+        var connection = new signalR.HubConnectionBuilder().withUrl("/chatHub").build();
+
+        connection.start().then(function () {
+            console.log("Bağlandı");
+        }).catch(function (err) {
+            return console.error(err.toString());
+        });
+        //Bağlantı Ayarları
+
+        //Backend'den tetiklenen
+        connection.on("MesajGeldi", function (user, message) {
+            var li = document.createElement("li");
+            document.getElementById("mesajListesi").appendChild(li);
+            li.textContent = `${user} : ${message}`;
+        });
+
+        //Backend'i tetikleyen
+        function mesajGonder() {
+            var user = document.getElementById("kullaniciAdiInput").value;
+            var message = document.getElementById("mesajInput").value;
+
+            connection.invoke("MesajGonder", user, message);
+        };
+
+    </script>
+}
